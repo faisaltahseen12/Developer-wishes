@@ -146,7 +146,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const selections = {
         name: "",
-        phone: "",
         date: "",
         location: "",
         customLocation: "",
@@ -181,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateProgressBar(wizardIndex) {
         if (!progressSteps) return;
-        const activeStep = wizardIndex; // Step indices match our indicator data-steps 1 to 5
+        const activeStep = wizardIndex;
         
         stepIndicators.forEach((indicator) => {
             const indicatorStep = parseInt(indicator.dataset.step);
@@ -201,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnAccept = document.getElementById("btn-accept");
     if (btnAccept) {
         btnAccept.addEventListener("click", () => {
-            showStep(1); // Go to User Info Card
+            showStep(1); // Go to User Info Card (Name Input)
         });
     }
 
@@ -216,27 +215,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // -------------------------------------------------------------------------
-    // 4. USER INFO CARD (Name & Contact) HANDLERS
+    // 4. USER INFO CARD (Name Only) HANDLERS
     // -------------------------------------------------------------------------
     const userNameInput = document.getElementById("user-name");
-    const userPhoneInput = document.getElementById("user-phone");
     const btnInfoNext = document.getElementById("btn-info-next");
 
     function validateInfoInputs() {
-        if (userNameInput && userPhoneInput && btnInfoNext) {
+        if (userNameInput && btnInfoNext) {
             const nameVal = userNameInput.value.trim();
-            const phoneVal = userPhoneInput.value.trim();
-            btnInfoNext.disabled = !(nameVal.length > 0 && phoneVal.length > 0);
+            btnInfoNext.disabled = !(nameVal.length > 0);
         }
     }
 
     if (userNameInput) userNameInput.addEventListener("input", validateInfoInputs);
-    if (userPhoneInput) userPhoneInput.addEventListener("input", validateInfoInputs);
 
     if (btnInfoNext) {
         btnInfoNext.addEventListener("click", () => {
             selections.name = userNameInput.value.trim();
-            selections.phone = userPhoneInput.value.trim();
             showStep(2); // Go to Date picker card
         });
     }
@@ -433,10 +428,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const dateStringFormatted = formatDate(selections.date);
 
-            // Message template containing the girl's name & phone number
+            // Message template for "Treat From Sohail"
             // Emojis are encoded in Unicode escape characters to prevent local file-saving encoding corruptions:
-            // \uD83D\uDC96 = 💖, \uD83D\uDCC5 = 📅, \uD83D\uDCCD = 📍, \uD83C\uDF54 = 🍔, \uD83D\uDC8C = 💌, \uD83D\uDC64 = 👤, \uD83D\uDCF1 = 📱
-            let messageText = `Hey! \uD83D\uDC96\n\nI've accepted your date invitation! Here are my details:\n\n\uD83D\uDC64 Name: ${selections.name}\n\uD83D\uDCF1 Number: ${selections.phone}\n\n\uD83D\uDCC5 Date Selected: ${dateStringFormatted}\n\uD83D\uDCCD Location Selected: ${locationString}\n\uD83C\uDF54 Food Chosen: ${foodString}`;
+            // \uD83D\uDC96 = 💖, \uD83D\uDCC5 = 📅, \uD83D\uDCCD = 📍, \uD83C\uDF54 = 🍔, \uD83D\uDC8C = 💌, \uD83D\uDC64 = 👤
+            let messageText = `Hey Sohail! \uD83D\uDC96\n\nI've accepted your treat invitation! Here is what I selected for our treat:\n\n\uD83D\uDC64 Name: ${selections.name}\n\n\uD83D\uDCC5 Treat Date: ${dateStringFormatted}\n\uD83D\uDCCD Location Chosen: ${locationString}\n\uD83C\uDF54 Food Chosen: ${foodString}`;
             if (selections.note) {
                 messageText += `\n\n\uD83D\uDC8C Message for you:\n"${selections.note}"`;
             }
@@ -444,8 +439,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const encodedMessage = encodeURIComponent(messageText);
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
-            // Destination is hardcoded secretly to Sohail's number: 03041709829
-            const recipientNumber = "923041709829"; 
+            // Destination is set automatically to target number: +92 321 8734829
+            const recipientNumber = "923218734829"; 
             
             const whatsappUrl = isMobile 
                 ? `https://api.whatsapp.com/send?phone=${recipientNumber}&text=${encodedMessage}`
