@@ -1,0 +1,655 @@
+/* CSS Design System & Styles for the Date Proposal Website */
+
+:root {
+    --primary-love: hsl(340, 85%, 60%);
+    --primary-love-hover: hsl(340, 95%, 52%);
+    --primary-love-dark: hsl(340, 90%, 45%);
+    --primary-love-light: hsla(340, 85%, 60%, 0.1);
+    --primary-love-glow: hsla(340, 85%, 60%, 0.4);
+    
+    --success-green: hsl(150, 70%, 40%);
+    --bg-gradient: linear-gradient(135deg, hsl(340, 100%, 97%) 0%, hsl(340, 80%, 91%) 100%);
+    
+    --card-bg: rgba(255, 255, 255, 0.72);
+    --card-border: rgba(255, 157, 180, 0.35);
+    
+    --text-color: hsl(340, 45%, 20%);
+    --text-muted: hsl(340, 20%, 45%);
+    
+    --font-sans: 'Outfit', sans-serif;
+    --font-serif: 'Playfair Display', serif;
+    
+    --transition-speed: 0.4s;
+    --shadow-premium: 0 20px 50px hsla(340, 80%, 80%, 0.25);
+    --shadow-active: 0 10px 30px hsla(340, 85%, 60%, 0.2);
+}
+
+/* Base resets & styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    color: var(--text-color);
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    position: relative;
+    padding: 20px;
+}
+
+/* Background Canvas */
+#heartsCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Main Premium Glass Container */
+.glass-container {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    width: 100%;
+    max-width: 580px;
+    border-radius: 28px;
+    padding: 40px 30px;
+    box-shadow: var(--shadow-premium);
+    z-index: 10;
+    position: relative;
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    transition: min-height 0.3s ease;
+}
+
+/* Progress bar styles */
+.progress-bar-wrapper {
+    width: 100%;
+    margin-bottom: 30px;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.progress-bar-wrapper.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 80%;
+    margin: 0 auto;
+}
+
+.step-indicator {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid var(--card-border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.step-indicator.active {
+    background: var(--primary-love);
+    border-color: var(--primary-love);
+    transform: scale(1.15);
+    box-shadow: var(--shadow-active);
+}
+
+.step-indicator.completed {
+    background: hsl(340, 100%, 93%);
+    border-color: var(--primary-love);
+}
+
+.step-line {
+    flex: 1;
+    height: 3px;
+    background: rgba(255, 182, 193, 0.3);
+    margin: 0 8px;
+    border-radius: 2px;
+    position: relative;
+}
+
+.step-line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background: var(--primary-love);
+    transition: width 0.4s ease;
+}
+
+.progress-steps[data-progress="1"] .step-line:nth-of-type(1)::after { width: 100%; }
+.progress-steps[data-progress="2"] .step-line:nth-of-type(1)::after { width: 100%; }
+.progress-steps[data-progress="2"] .step-line:nth-of-type(2)::after { width: 100%; }
+.progress-steps[data-progress="3"] .step-line:nth-of-type(1)::after { width: 100%; }
+.progress-steps[data-progress="3"] .step-line:nth-of-type(2)::after { width: 100%; }
+.progress-steps[data-progress="3"] .step-line:nth-of-type(3)::after { width: 100%; }
+
+/* Card transitions */
+.wizard-card {
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    width: 100%;
+}
+
+.wizard-card.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animations for active card entrance */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.wizard-card.active {
+    animation: slideIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+/* Typography styles */
+.romantic-title {
+    font-family: var(--font-serif);
+    font-size: 2.3rem;
+    font-weight: 800;
+    color: var(--text-color);
+    margin-bottom: 12px;
+    text-align: center;
+    letter-spacing: -0.5px;
+}
+
+.romantic-subtitle {
+    font-family: var(--font-serif);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.romantic-text {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 30px;
+    text-align: center;
+    max-width: 90%;
+}
+
+.instruction-text {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* Mascot SVG Animation */
+.mascot-container {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    perspective: 800px;
+}
+
+.love-envelope {
+    animation: floatMascot 4s ease-in-out infinite;
+}
+
+@keyframes floatMascot {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(2deg);
+    }
+}
+
+.floating-envelope-heart {
+    animation: heartbeatMascot 1.5s ease-in-out infinite alternate;
+    transform-origin: 50% 50%;
+}
+
+@keyframes heartbeatMascot {
+    0% { transform: scale(0.9) translate(0, 0); }
+    100% { transform: scale(1.1) translate(0, -3px); }
+}
+
+/* Custom Styled DatePicker */
+.input-wrapper {
+    width: 100%;
+    max-width: 320px;
+    margin: 15px auto 30px auto;
+    position: relative;
+}
+
+.custom-datepicker {
+    width: 100%;
+    padding: 16px 20px;
+    font-family: var(--font-sans);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid var(--card-border);
+    border-radius: 16px;
+    outline: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+}
+
+.custom-datepicker:focus {
+    border-color: var(--primary-love);
+    box-shadow: 0 0 0 4px var(--primary-love-glow);
+    background: #ffffff;
+}
+
+/* Grid layout for date, location, and food options */
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.option-card {
+    background: rgba(255, 255, 255, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 18px;
+    padding: 20px 15px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(255, 182, 193, 0.05);
+}
+
+.option-card:hover {
+    transform: translateY(-4px);
+    background: #ffffff;
+    border-color: var(--card-border);
+    box-shadow: 0 10px 20px rgba(255, 182, 193, 0.15);
+}
+
+.option-card.selected {
+    background: #ffffff;
+    border-color: var(--primary-love);
+    box-shadow: var(--shadow-active);
+    transform: scale(1.02) translateY(-2px);
+}
+
+.option-icon {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+    transition: transform 0.3s ease;
+}
+
+.option-card:hover .option-icon {
+    transform: scale(1.15) rotate(5deg);
+}
+
+.option-label {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.option-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+/* Custom Text inputs inside step views */
+.custom-input-container {
+    width: 100%;
+    margin-bottom: 25px;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    opacity: 1;
+    max-height: 80px;
+}
+
+.custom-input-container.hidden {
+    display: none;
+    opacity: 0;
+    max-height: 0;
+    margin-bottom: 0;
+    overflow: hidden;
+}
+
+.custom-text-input {
+    width: 100%;
+    padding: 14px 20px;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid var(--primary-love);
+    border-radius: 14px;
+    outline: none;
+    box-shadow: 0 4px 12px rgba(255, 23, 68, 0.05);
+    transition: all 0.3s ease;
+}
+
+.custom-text-input:focus {
+    box-shadow: 0 0 0 4px var(--primary-love-glow);
+    background: #ffffff;
+}
+
+/* Summary Box Styling */
+.summary-box {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 22px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 24px rgba(255, 182, 193, 0.08);
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px dashed rgba(255, 182, 193, 0.3);
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.summary-item:first-child {
+    padding-top: 0;
+}
+
+.summary-label {
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.summary-value {
+    font-weight: 700;
+    color: var(--primary-love-dark);
+}
+
+/* Custom Textarea */
+.textarea-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-align: left;
+    width: 100%;
+}
+
+.custom-textarea {
+    width: 100%;
+    padding: 14px 18px;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid var(--card-border);
+    border-radius: 14px;
+    outline: none;
+    resize: none;
+    transition: all 0.3s ease;
+}
+
+.custom-textarea:focus {
+    border-color: var(--primary-love);
+    box-shadow: 0 0 0 4px var(--primary-love-glow);
+    background: #ffffff;
+}
+
+/* Button & Button Group styles */
+.button-group {
+    display: flex;
+    width: 100%;
+    gap: 15px;
+    margin-top: 10px;
+    justify-content: center;
+}
+
+.proposal-buttons {
+    position: relative;
+    height: 70px;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn {
+    font-family: var(--font-sans);
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 14px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+}
+
+/* Primary buttons */
+.btn-primary {
+    background: var(--primary-love);
+    color: #ffffff;
+    flex: 1;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--primary-love-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-active);
+}
+
+.btn-primary:disabled {
+    background: rgba(255, 182, 193, 0.5);
+    color: rgba(255, 255, 255, 0.7);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Secondary/Back buttons */
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid var(--card-border);
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background: #ffffff;
+    border-color: var(--primary-love);
+    transform: translateY(-2px);
+}
+
+/* YES proposal button */
+.btn-yes {
+    background: var(--primary-love);
+    color: #ffffff;
+    font-size: 1.15rem;
+    padding: 16px 36px;
+    border-radius: 16px;
+    animation: pulse 2s infinite;
+    box-shadow: 0 8px 24px rgba(255, 23, 68, 0.3);
+}
+
+.btn-yes:hover {
+    background: var(--primary-love-hover);
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 12px 30px rgba(255, 23, 68, 0.4);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 15px rgba(255, 23, 68, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 23, 68, 0);
+    }
+}
+
+/* NO proposal button */
+.btn-decline {
+    background: hsl(0, 0%, 90%);
+    color: #555555;
+    position: relative;
+    z-index: 1000;
+}
+
+.btn-decline.evading {
+    position: fixed;
+    transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    pointer-events: auto;
+}
+
+/* Submit proposal button */
+.btn-confirm {
+    background: var(--primary-love);
+    color: #ffffff;
+    font-size: 1.1rem;
+    padding: 15px 32px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(255, 23, 68, 0.2);
+    flex: 1.5;
+}
+
+.btn-confirm:hover {
+    background: var(--primary-love-hover);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-active);
+}
+
+/* Success View Styling */
+.success-heart-animation {
+    margin-bottom: 25px;
+}
+
+.heart-pulse-svg {
+    animation: heartPulseInfinite 1s infinite alternate cubic-bezier(0.215, 0.610, 0.355, 1);
+    transform-origin: 50% 50%;
+}
+
+@keyframes heartPulseInfinite {
+    0% {
+        transform: scale(0.9);
+        filter: drop-shadow(0 0 5px rgba(255, 23, 68, 0.5));
+    }
+    100% {
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 20px rgba(255, 23, 68, 0.8));
+    }
+}
+
+.whatsapp-note {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 500px) {
+    .glass-container {
+        padding: 30px 20px;
+        border-radius: 24px;
+        min-height: 420px;
+    }
+    
+    .romantic-title {
+        font-size: 1.85rem;
+    }
+    
+    .romantic-subtitle {
+        font-size: 1.5rem;
+    }
+    
+    .romantic-text {
+        font-size: 1.05rem;
+        margin-bottom: 20px;
+    }
+    
+    .options-grid {
+        gap: 10px;
+        grid-template-columns: 1fr; /* Stack options vertically on small screens */
+    }
+    
+    .option-card {
+        padding: 15px;
+        flex-direction: row;
+        text-align: left;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .option-icon {
+        font-size: 1.8rem;
+        margin-bottom: 0;
+    }
+    
+    .option-label {
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+    }
+    
+    .option-desc {
+        font-size: 0.75rem;
+    }
+    
+    .proposal-buttons {
+        flex-direction: row;
+    }
+}

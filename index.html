@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Invitation For You 💖</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;0,800;1,400&display=swap" rel="stylesheet">
+    <!-- Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Dynamic Floating Hearts Canvas Background -->
+    <canvas id="heartsCanvas"></canvas>
+
+    <!-- Main Floating Container -->
+    <main class="glass-container">
+        
+        <!-- Progress Bar (Visible after the proposal is accepted) -->
+        <div class="progress-bar-wrapper hidden" id="progressWrapper">
+            <div class="progress-steps">
+                <div class="step-indicator active" data-step="1">📅</div>
+                <div class="step-line"></div>
+                <div class="step-indicator" data-step="2">📍</div>
+                <div class="step-line"></div>
+                <div class="step-indicator" data-step="3">🍔</div>
+                <div class="step-line"></div>
+                <div class="step-indicator" data-step="4">💌</div>
+            </div>
+        </div>
+
+        <!-- STAGE 1: The proposal -->
+        <section class="wizard-card active" id="card-proposal">
+            <div class="mascot-container">
+                <!-- Cute SVG Envelope with Heart -->
+                <svg class="love-envelope" viewBox="0 0 100 100" width="120" height="120">
+                    <path class="envelope-back" d="M10,30 L90,30 L90,80 L10,80 Z" fill="#ffccd5" />
+                    <path class="envelope-paper" d="M20,20 L80,20 L80,75 L20,75 Z" fill="#ffffff" />
+                    <path class="envelope-front" d="M10,80 L50,45 L90,80 Z" fill="#ffa6c9" />
+                    <path class="envelope-flap" d="M10,30 L50,60 L90,30 Z" fill="#ff80ab" />
+                    <!-- Floating heart out of envelope -->
+                    <path class="floating-envelope-heart" d="M50,40 C45,30 35,30 35,40 C35,50 50,62 50,62 C50,62 65,50 65,40 C65,30 55,30 50,40 Z" fill="#ff1744" />
+                </svg>
+            </div>
+            <h1 class="romantic-title">Hey Beautiful... ✨</h1>
+            <p class="romantic-text">I was wondering if you would make me the happiest person and go on a date with me? 🌹</p>
+            <div class="button-group proposal-buttons">
+                <button type="button" class="btn btn-yes" id="btn-accept">Yes, I'd love to! 💖</button>
+                <button type="button" class="btn btn-no" id="btn-decline">No 😢</button>
+            </div>
+        </section>
+
+        <!-- STAGE 2: Date Selection -->
+        <section class="wizard-card" id="card-date">
+            <h2 class="romantic-subtitle">Pick the Perfect Date 📅</h2>
+            <p class="instruction-text">Choose a day when you are completely free and ready to make memories.</p>
+            
+            <div class="input-wrapper">
+                <input type="date" id="date-picker" class="custom-datepicker" required>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-primary btn-next" id="btn-date-next" disabled>Choose Location ➔</button>
+            </div>
+        </section>
+
+        <!-- STAGE 3: Location Selection -->
+        <section class="wizard-card" id="card-location">
+            <h2 class="romantic-subtitle">Where should we go? 📍</h2>
+            <p class="instruction-text">Select your dream vibe. (You can choose one, or write your own!)</p>
+            
+            <div class="options-grid" id="location-options">
+                <div class="option-card" data-value="Cosy Cafe">
+                    <div class="option-icon">☕</div>
+                    <div class="option-label">Cosy Cafe</div>
+                    <div class="option-desc">Warm coffee and endless talks.</div>
+                </div>
+                <div class="option-card" data-value="Romantic Dinner">
+                    <div class="option-icon">🕯️</div>
+                    <div class="option-label">Romantic Dinner</div>
+                    <div class="option-desc">Candlelight and elegant ambiance.</div>
+                </div>
+                <div class="option-card" data-value="Scenic Park Picnic">
+                    <div class="option-icon">🧺</div>
+                    <div class="option-label">Scenic Park Picnic</div>
+                    <div class="option-desc">Nature, fresh air and snacks.</div>
+                </div>
+                <div class="option-card" data-value="Beach Sunset">
+                    <div class="option-icon">🌅</div>
+                    <div class="option-label">Beach Sunset</div>
+                    <div class="option-desc">Waves and the golden hour.</div>
+                </div>
+                <div class="option-card" data-value="Movie Night">
+                    <div class="option-icon">🍿</div>
+                    <div class="option-label">Movie Night</div>
+                    <div class="option-desc">Popcorn and a cozy film.</div>
+                </div>
+                <div class="option-card option-custom-trigger" data-value="custom">
+                    <div class="option-icon">✨</div>
+                    <div class="option-label">Something else...</div>
+                    <div class="option-desc">Type your custom location!</div>
+                </div>
+            </div>
+
+            <!-- Custom Location Input Container -->
+            <div class="custom-input-container hidden" id="custom-location-wrapper">
+                <input type="text" id="custom-location-input" class="custom-text-input" placeholder="Type your dream destination...">
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary btn-back">⬅ Back</button>
+                <button type="button" class="btn btn-primary btn-next" id="btn-location-next" disabled>Choose Food ➔</button>
+            </div>
+        </section>
+
+        <!-- STAGE 4: Food Selector -->
+        <section class="wizard-card" id="card-food">
+            <h2 class="romantic-subtitle">What should we eat? 🍕</h2>
+            <p class="instruction-text">Pick your absolute cravings. (Multiple selections are welcome!)</p>
+            
+            <div class="options-grid" id="food-options">
+                <div class="option-card" data-value="Pizza">
+                    <div class="option-icon">🍕</div>
+                    <div class="option-label">Pizza</div>
+                    <div class="option-desc">Cheesy slices of happiness.</div>
+                </div>
+                <div class="option-card" data-value="Biryani">
+                    <div class="option-icon">🍛</div>
+                    <div class="option-label">Biryani</div>
+                    <div class="option-desc">Classic aromatic goodness.</div>
+                </div>
+                <div class="option-card" data-value="Karhai">
+                    <div class="option-icon">🍲</div>
+                    <div class="option-label">Karhai</div>
+                    <div class="option-desc">Spicy, rich traditional flavor.</div>
+                </div>
+                <div class="option-card" data-value="BBQ Bonfire">
+                    <div class="option-icon">🍢</div>
+                    <div class="option-label">Bonfire & BBQ</div>
+                    <div class="option-desc">Grills under the starry sky.</div>
+                </div>
+                <div class="option-card option-custom-trigger" data-value="custom">
+                    <div class="option-icon">🍽️</div>
+                    <div class="option-label">Something else...</div>
+                    <div class="option-desc">Add your custom cravings!</div>
+                </div>
+            </div>
+
+            <!-- Custom Food Input Container -->
+            <div class="custom-input-container hidden" id="custom-food-wrapper">
+                <input type="text" id="custom-food-input" class="custom-text-input" placeholder="Type your food craving (e.g. Sushi, Burgers)...">
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary btn-back">⬅ Back</button>
+                <button type="button" class="btn btn-primary btn-next" id="btn-food-next" disabled>Final Details ➔</button>
+            </div>
+        </section>
+
+        <!-- STAGE 5: Summary and Confirmation -->
+        <section class="wizard-card" id="card-summary">
+            <h2 class="romantic-subtitle">Almost Done! 💌</h2>
+            <p class="instruction-text">Here is what we have planned so far. Double check it!</p>
+
+            <div class="summary-box">
+                <div class="summary-item">
+                    <span class="summary-label">📅 Date:</span>
+                    <span class="summary-value" id="summary-date">-</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">📍 Location:</span>
+                    <span class="summary-value" id="summary-location">-</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">🍔 Food Choice:</span>
+                    <span class="summary-value" id="summary-food">-</span>
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <label for="love-note" class="textarea-label">Write a sweet note or special request (optional):</label>
+                <textarea id="love-note" class="custom-textarea" placeholder="Can't wait to see you... 💕" rows="3"></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary btn-back">⬅ Back</button>
+                <button type="button" class="btn btn-confirm" id="btn-submit">Lock it in! 💖</button>
+            </div>
+        </section>
+
+        <!-- STAGE 6: Success Page -->
+        <section class="wizard-card" id="card-success">
+            <div class="success-heart-animation">
+                <svg class="heart-pulse-svg" viewBox="0 0 100 100" width="100" height="100">
+                    <path d="M50,30 C35,10 10,25 10,50 C10,75 50,95 50,95 C50,95 90,75 90,50 C90,25 65,10 50,30 Z" fill="#ff1744" />
+                </svg>
+            </div>
+            <h2 class="romantic-title">Yay! It's a Date! 🎉</h2>
+            <p class="romantic-text">Your response is being sent. I can't wait to make this the most beautiful day of our lives!</p>
+            <p class="whatsapp-note">If the WhatsApp redirect did not trigger automatically, click the button below to message me:</p>
+            <div class="button-group">
+                <a href="#" target="_blank" class="btn btn-confirm" id="btn-whatsapp-fallback">Open WhatsApp 💬</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Script File -->
+    <script src="app.js"></script>
+</body>
+</html>
