@@ -11,8 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const maxHearts = 40;
 
     function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        if (canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
     }
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
@@ -20,14 +22,14 @@ document.addEventListener("DOMContentLoaded", () => {
     class Heart {
         constructor() {
             this.reset();
-            // Stagger initial Y position to avoid all hearts starting from bottom
-            this.y = Math.random() * canvas.height;
+            if (canvas) this.y = Math.random() * canvas.height;
         }
 
         reset() {
+            if (!canvas) return;
             this.x = Math.random() * canvas.width;
             this.y = canvas.height + 20;
-            this.size = Math.random() * 15 + 10; // width/height
+            this.size = Math.random() * 15 + 10;
             this.speedY = Math.random() * 0.8 + 0.4;
             this.speedX = Math.sin(Math.random() * Math.PI) * 0.3;
             this.opacity = Math.random() * 0.5 + 0.3;
@@ -36,13 +38,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         draw() {
+            if (!ctx) return;
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotation);
             ctx.globalAlpha = this.opacity;
             ctx.fillStyle = "rgba(255, 23, 68, 0.4)";
             
-            // Draw heart shape
             ctx.beginPath();
             const d = this.size;
             ctx.moveTo(0, -d / 4);
@@ -60,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
             this.y -= this.speedY;
             this.x += this.speedX;
             this.rotation += this.rotSpeed;
-            this.opacity -= 0.0005; // Fade out slowly as they float up
+            this.opacity -= 0.0005;
 
             if (this.y < -30 || this.opacity <= 0) {
                 this.reset();
@@ -68,20 +70,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Initialize hearts
-    for (let i = 0; i < maxHearts; i++) {
-        hearts.push(new Heart());
-    }
+    if (canvas) {
+        for (let i = 0; i < maxHearts; i++) {
+            hearts.push(new Heart());
+        }
 
-    function animateHearts() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        hearts.forEach(heart => {
-            heart.update();
-            heart.draw();
-        });
-        requestAnimationFrame(animateHearts);
+        function animateHearts() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hearts.forEach(heart => {
+                heart.update();
+                heart.draw();
+            });
+            requestAnimationFrame(animateHearts);
+        }
+        animateHearts();
     }
-    animateHearts();
 
     // -------------------------------------------------------------------------
     // 2. EVASIVE "NO" BUTTON LOGIC
@@ -89,51 +92,46 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnDecline = document.getElementById("btn-decline");
     
     function evade() {
-        // Toggle the button style to absolute so it jumps
+        if (!btnDecline) return;
         if (!btnDecline.classList.contains("evading")) {
             btnDecline.classList.add("evading");
         }
         
         const padding = 30;
-        // Button dimensions
         const btnWidth = btnDecline.offsetWidth;
         const btnHeight = btnDecline.offsetHeight;
-        
-        // Window dimensions
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
         
-        // Calculate maximum bounds keeping it completely on screen
         const maxX = windowWidth - btnWidth - padding;
         const maxY = windowHeight - btnHeight - padding;
         
-        // Generate random coordinates
         let randomX = Math.random() * (maxX - padding) + padding;
         let randomY = Math.random() * (maxY - padding) + padding;
         
-        // Make sure it doesn't overlap exactly with the cursor's location
-        // Just general safety positioning
         btnDecline.style.left = `${randomX}px`;
         btnDecline.style.top = `${randomY}px`;
     }
 
-    // Bind events for both desktop (hover) and mobile (touchstart)
-    btnDecline.addEventListener("mouseover", evade);
-    btnDecline.addEventListener("mouseenter", evade);
-    btnDecline.addEventListener("click", (e) => {
-        e.preventDefault();
-        evade();
-    });
-    btnDecline.addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        evade();
-    });
+    if (btnDecline) {
+        btnDecline.addEventListener("mouseover", evade);
+        btnDecline.addEventListener("mouseenter", evade);
+        btnDecline.addEventListener("click", (e) => {
+            e.preventDefault();
+            evade();
+        });
+        btnDecline.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            evade();
+        });
+    }
 
     // -------------------------------------------------------------------------
     // 3. WIZARD STEP NAVIGATION
     // -------------------------------------------------------------------------
     const steps = [
         "card-proposal",
+        "card-info",
         "card-date",
         "card-location",
         "card-food",
@@ -146,24 +144,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const progressSteps = document.querySelector(".progress-steps");
     const stepIndicators = document.querySelectorAll(".step-indicator");
     
-    // Form selections state
     const selections = {
+        name: "",
+        phone: "",
         date: "",
         location: "",
         customLocation: "",
-        foods: [], // Array for multi-select
+        foods: [],
         customFood: "",
         note: ""
     };
 
     function showStep(index) {
-        // Hide all cards
+        // Hide all stage cards
         steps.forEach(stepId => {
             const card = document.getElementById(stepId);
             if (card) card.classList.remove("active");
         });
         
-        // Show current card
+        // Show current step card
         const currentCard = document.getElementById(steps[index]);
         if (currentCard) {
             currentCard.classList.add("active");
@@ -171,20 +170,20 @@ document.addEventListener("DOMContentLoaded", () => {
         
         currentStepIndex = index;
         
-        // Update progress bar
+        // Handle progress bar visibility
         if (index > 0 && index < steps.length - 1) {
-            progressWrapper.classList.remove("hidden");
+            if (progressWrapper) progressWrapper.classList.remove("hidden");
             updateProgressBar(index);
         } else {
-            progressWrapper.classList.add("hidden");
+            if (progressWrapper) progressWrapper.classList.add("hidden");
         }
     }
 
     function updateProgressBar(wizardIndex) {
-        // wizardIndex corresponds to date (1), location (2), food (3), summary (4)
-        const activeStep = wizardIndex; // 1-based indicator index
+        if (!progressSteps) return;
+        const activeStep = wizardIndex; // Step indices match our indicator data-steps 1 to 5
         
-        stepIndicators.forEach((indicator, idx) => {
+        stepIndicators.forEach((indicator) => {
             const indicatorStep = parseInt(indicator.dataset.step);
             indicator.classList.remove("active", "completed");
             
@@ -195,16 +194,18 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
         
-        // Set the data-progress on container to fill the connecting line
         progressSteps.setAttribute("data-progress", activeStep - 1);
     }
 
-    // Accept proposal triggers wizard flow
-    document.getElementById("btn-accept").addEventListener("click", () => {
-        showStep(1); // Go to Date picker card
-    });
+    // Accept proposal
+    const btnAccept = document.getElementById("btn-accept");
+    if (btnAccept) {
+        btnAccept.addEventListener("click", () => {
+            showStep(1); // Go to User Info Card
+        });
+    }
 
-    // Handle back button on all views
+    // Back buttons
     const backButtons = document.querySelectorAll(".btn-back");
     backButtons.forEach(btn => {
         btn.addEventListener("click", () => {
@@ -215,30 +216,59 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // -------------------------------------------------------------------------
-    // 4. DATE PICKER CONTROLS
+    // 4. USER INFO CARD (Name & Contact) HANDLERS
+    // -------------------------------------------------------------------------
+    const userNameInput = document.getElementById("user-name");
+    const userPhoneInput = document.getElementById("user-phone");
+    const btnInfoNext = document.getElementById("btn-info-next");
+
+    function validateInfoInputs() {
+        if (userNameInput && userPhoneInput && btnInfoNext) {
+            const nameVal = userNameInput.value.trim();
+            const phoneVal = userPhoneInput.value.trim();
+            btnInfoNext.disabled = !(nameVal.length > 0 && phoneVal.length > 0);
+        }
+    }
+
+    if (userNameInput) userNameInput.addEventListener("input", validateInfoInputs);
+    if (userPhoneInput) userPhoneInput.addEventListener("input", validateInfoInputs);
+
+    if (btnInfoNext) {
+        btnInfoNext.addEventListener("click", () => {
+            selections.name = userNameInput.value.trim();
+            selections.phone = userPhoneInput.value.trim();
+            showStep(2); // Go to Date picker card
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. DATE PICKER CONTROLS
     // -------------------------------------------------------------------------
     const datePicker = document.getElementById("date-picker");
     const btnDateNext = document.getElementById("btn-date-next");
     
-    // Restrict date selector to today and onwards
-    const todayStr = new Date().toISOString().split('T')[0];
-    datePicker.min = todayStr;
+    if (datePicker) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        datePicker.min = todayStr;
 
-    datePicker.addEventListener("input", () => {
-        if (datePicker.value) {
-            selections.date = datePicker.value;
-            btnDateNext.disabled = false;
-        } else {
-            btnDateNext.disabled = true;
-        }
-    });
+        datePicker.addEventListener("input", () => {
+            if (datePicker.value) {
+                selections.date = datePicker.value;
+                if (btnDateNext) btnDateNext.disabled = false;
+            } else {
+                if (btnDateNext) btnDateNext.disabled = true;
+            }
+        });
+    }
 
-    btnDateNext.addEventListener("click", () => {
-        showStep(2); // Go to Location Selection
-    });
+    if (btnDateNext) {
+        btnDateNext.addEventListener("click", () => {
+            showStep(3); // Go to Location card
+        });
+    }
 
     // -------------------------------------------------------------------------
-    // 5. LOCATION SELECTION LOGIC (Single Select)
+    // 6. LOCATION SELECTION LOGIC (Single Select)
     // -------------------------------------------------------------------------
     const locationOptions = document.querySelectorAll("#location-options .option-card");
     const customLocationWrapper = document.getElementById("custom-location-wrapper");
@@ -247,30 +277,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     locationOptions.forEach(card => {
         card.addEventListener("click", () => {
-            // Remove selection styling from all cards
             locationOptions.forEach(c => c.classList.remove("selected"));
-            
             card.classList.add("selected");
             const val = card.dataset.value;
             selections.location = val;
 
             if (val === "custom") {
-                customLocationWrapper.classList.remove("hidden");
-                customLocationInput.focus();
+                if (customLocationWrapper) customLocationWrapper.classList.remove("hidden");
+                if (customLocationInput) customLocationInput.focus();
                 validateLocationNextButton();
             } else {
-                customLocationWrapper.classList.add("hidden");
-                btnLocationNext.disabled = false;
+                if (customLocationWrapper) customLocationWrapper.classList.add("hidden");
+                if (btnLocationNext) btnLocationNext.disabled = false;
             }
         });
     });
 
-    customLocationInput.addEventListener("input", () => {
-        selections.customLocation = customLocationInput.value;
-        validateLocationNextButton();
-    });
+    if (customLocationInput) {
+        customLocationInput.addEventListener("input", () => {
+            selections.customLocation = customLocationInput.value;
+            validateLocationNextButton();
+        });
+    }
 
     function validateLocationNextButton() {
+        if (!btnLocationNext) return;
         if (selections.location === "custom") {
             btnLocationNext.disabled = !customLocationInput.value.trim();
         } else {
@@ -278,12 +309,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    btnLocationNext.addEventListener("click", () => {
-        showStep(3); // Go to Food Selection
-    });
+    if (btnLocationNext) {
+        btnLocationNext.addEventListener("click", () => {
+            showStep(4); // Go to Food card
+        });
+    }
 
     // -------------------------------------------------------------------------
-    // 6. FOOD SELECTION LOGIC (Multi-Select)
+    // 7. FOOD SELECTION LOGIC (Multi-Select)
     // -------------------------------------------------------------------------
     const foodOptions = document.querySelectorAll("#food-options .option-card");
     const customFoodWrapper = document.getElementById("custom-food-wrapper");
@@ -297,12 +330,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (val === "custom") {
                 if (card.classList.contains("selected")) {
-                    customFoodWrapper.classList.remove("hidden");
-                    customFoodInput.focus();
+                    if (customFoodWrapper) customFoodWrapper.classList.remove("hidden");
+                    if (customFoodInput) customFoodInput.focus();
                 } else {
-                    customFoodWrapper.classList.add("hidden");
+                    if (customFoodWrapper) customFoodWrapper.classList.add("hidden");
                     selections.customFood = "";
-                    customFoodInput.value = "";
+                    if (customFoodInput) customFoodInput.value = "";
                 }
             } else {
                 if (card.classList.contains("selected")) {
@@ -317,30 +350,32 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    customFoodInput.addEventListener("input", () => {
-        selections.customFood = customFoodInput.value;
-        validateFoodNextButton();
-    });
-
-    function validateFoodNextButton() {
-        const hasStandardFood = selections.foods.length > 0;
-        const isCustomSelected = document.querySelector('#food-options .option-card[data-value="custom"]').classList.contains("selected");
-        const hasCustomFood = isCustomSelected && customFoodInput.value.trim().length > 0;
-        
-        if (hasStandardFood || hasCustomFood) {
-            btnFoodNext.disabled = false;
-        } else {
-            btnFoodNext.disabled = true;
-        }
+    if (customFoodInput) {
+        customFoodInput.addEventListener("input", () => {
+            selections.customFood = customFoodInput.value;
+            validateFoodNextButton();
+        });
     }
 
-    btnFoodNext.addEventListener("click", () => {
-        populateSummary();
-        showStep(4); // Go to Summary Card
-    });
+    function validateFoodNextButton() {
+        if (!btnFoodNext) return;
+        const hasStandardFood = selections.foods.length > 0;
+        const customCard = document.querySelector('#food-options .option-card[data-value="custom"]');
+        const isCustomSelected = customCard && customCard.classList.contains("selected");
+        const hasCustomFood = isCustomSelected && customFoodInput.value.trim().length > 0;
+        
+        btnFoodNext.disabled = !(hasStandardFood || hasCustomFood);
+    }
+
+    if (btnFoodNext) {
+        btnFoodNext.addEventListener("click", () => {
+            populateSummary();
+            showStep(5); // Go to Summary card
+        });
+    }
 
     // -------------------------------------------------------------------------
-    // 7. SUMMARY & CONFIRMATION
+    // 8. SUMMARY RENDERER
     // -------------------------------------------------------------------------
     const summaryDate = document.getElementById("summary-date");
     const summaryLocation = document.getElementById("summary-location");
@@ -355,78 +390,82 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function populateSummary() {
-        // Date
-        summaryDate.textContent = formatDate(selections.date);
+        if (summaryDate) summaryDate.textContent = formatDate(selections.date);
         
-        // Location
-        if (selections.location === "custom") {
-            summaryLocation.textContent = selections.customLocation.trim();
-        } else {
-            summaryLocation.textContent = selections.location;
+        if (summaryLocation) {
+            summaryLocation.textContent = (selections.location === "custom") 
+                ? selections.customLocation.trim() 
+                : selections.location;
         }
         
-        // Food list compilation
-        let foodItems = [...selections.foods];
-        const isCustomSelected = document.querySelector('#food-options .option-card[data-value="custom"]').classList.contains("selected");
-        if (isCustomSelected && selections.customFood.trim()) {
-            foodItems.push(selections.customFood.trim());
+        if (summaryFood) {
+            let foodItems = [...selections.foods];
+            const customCard = document.querySelector('#food-options .option-card[data-value="custom"]');
+            const isCustomSelected = customCard && customCard.classList.contains("selected");
+            if (isCustomSelected && selections.customFood.trim()) {
+                foodItems.push(selections.customFood.trim());
+            }
+            summaryFood.textContent = foodItems.join(", ");
         }
-        summaryFood.textContent = foodItems.join(", ");
     }
 
     // -------------------------------------------------------------------------
-    // 8. FINAL SUBMIT & WHATSAPP REDIRECTION
+    // 9. SUBMISSION & DISPATCH SYSTEM (Direct Redirection to Sohail)
     // -------------------------------------------------------------------------
     const btnSubmit = document.getElementById("btn-submit");
     const btnWhatsAppFallback = document.getElementById("btn-whatsapp-fallback");
 
-    btnSubmit.addEventListener("click", () => {
-        selections.note = loveNoteInput.value.trim();
+    if (btnSubmit) {
+        btnSubmit.addEventListener("click", () => {
+            selections.note = loveNoteInput ? loveNoteInput.value.trim() : "";
 
-        // Format selected foods
-        let foodItems = [...selections.foods];
-        const isCustomSelected = document.querySelector('#food-options .option-card[data-value="custom"]').classList.contains("selected");
-        if (isCustomSelected && selections.customFood.trim()) {
-            foodItems.push(selections.customFood.trim());
-        }
-        const foodString = foodItems.join(", ");
-        
-        // Format Location
-        const locationString = (selections.location === "custom") 
-            ? selections.customLocation.trim() 
-            : selections.location;
+            let foodItems = [...selections.foods];
+            const customCard = document.querySelector('#food-options .option-card[data-value="custom"]');
+            const isCustomSelected = customCard && customCard.classList.contains("selected");
+            if (isCustomSelected && selections.customFood.trim()) {
+                foodItems.push(selections.customFood.trim());
+            }
+            const foodString = foodItems.join(", ");
+            
+            const locationString = (selections.location === "custom") 
+                ? selections.customLocation.trim() 
+                : selections.location;
 
-        const dateStringFormatted = formatDate(selections.date);
+            const dateStringFormatted = formatDate(selections.date);
 
-        // Build sweet message text for Sohail (03041709829)
-        // Emojis are encoded in Unicode escape characters to prevent local file-saving encoding corruptions:
-        // \uD83D\uDC96 = 💖, \uD83D\uDCC5 = 📅, \uD83D\uDCCD = 📍, \uD83C\uDF54 = 🍔, \uD83D\uDC8C = 💌
-        const recipientNumber = "923041709829"; // International format for Pakistan
-        let messageText = `Hey! \uD83D\uDC96\n\nI've accepted your date invitation! Here is what I selected for our perfect date:\n\n\uD83D\uDCC5 Date: ${dateStringFormatted}\n\uD83D\uDCCD Location: ${locationString}\n\uD83C\uDF54 Food Chosen: ${foodString}`;
-        
-        if (selections.note) {
-            messageText += `\n\n\uD83D\uDC8C Message for you:\n"${selections.note}"`;
-        }
+            // Message template containing the girl's name & phone number
+            // Emojis are encoded in Unicode escape characters to prevent local file-saving encoding corruptions:
+            // \uD83D\uDC96 = 💖, \uD83D\uDCC5 = 📅, \uD83D\uDCCD = 📍, \uD83C\uDF54 = 🍔, \uD83D\uDC8C = 💌, \uD83D\uDC64 = 👤, \uD83D\uDCF1 = 📱
+            let messageText = `Hey! \uD83D\uDC96\n\nI've accepted your date invitation! Here are my details:\n\n\uD83D\uDC64 Name: ${selections.name}\n\uD83D\uDCF1 Number: ${selections.phone}\n\n\uD83D\uDCC5 Date Selected: ${dateStringFormatted}\n\uD83D\uDCCD Location Selected: ${locationString}\n\uD83C\uDF54 Food Chosen: ${foodString}`;
+            if (selections.note) {
+                messageText += `\n\n\uD83D\uDC8C Message for you:\n"${selections.note}"`;
+            }
 
-        const encodedMessage = encodeURIComponent(messageText);
-        
-        // Detect if mobile device to choose the most direct WhatsApp API
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const whatsappUrl = isMobile 
-            ? `https://api.whatsapp.com/send?phone=${recipientNumber}&text=${encodedMessage}`
-            : `https://web.whatsapp.com/send?phone=${recipientNumber}&text=${encodedMessage}`;
+            const encodedMessage = encodeURIComponent(messageText);
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            // Destination is hardcoded secretly to Sohail's number: 03041709829
+            const recipientNumber = "923041709829"; 
+            
+            const whatsappUrl = isMobile 
+                ? `https://api.whatsapp.com/send?phone=${recipientNumber}&text=${encodedMessage}`
+                : `https://web.whatsapp.com/send?phone=${recipientNumber}&text=${encodedMessage}`;
 
-        // Trigger WhatsApp Redirect (direct redirection for mobile, new tab for desktop)
-        if (isMobile) {
-            window.location.href = whatsappUrl;
-        } else {
-            window.open(whatsappUrl, "_blank");
-        }
+            // Trigger Redirection
+            if (isMobile) {
+                window.location.href = whatsappUrl;
+            } else {
+                window.open(whatsappUrl, "_blank");
+            }
 
-        // Set fallback link inside success page in case popup gets blocked by browser
-        btnWhatsAppFallback.href = whatsappUrl;
+            if (btnWhatsAppFallback) {
+                btnWhatsAppFallback.href = whatsappUrl;
+            }
 
-        // Transition to success card
-        showStep(5); // Go to final Success Page
-    });
+            showStep(6); // Show success step
+        });
+    }
+
+    // Initialize proposal
+    showStep(0);
 });
