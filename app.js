@@ -402,7 +402,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Emojis are encoded in Unicode escape characters to prevent local file-saving encoding corruptions:
         // \uD83D\uDC96 = 💖, \uD83D\uDCC5 = 📅, \uD83D\uDCCD = 📍, \uD83C\uDF54 = 🍔, \uD83D\uDC8C = 💌
         const recipientNumber = "923041709829"; // International format for Pakistan
-        let messageText = `Hey Sohail! \uD83D\uDC96\n\nI've accepted your date invitation! Here is what I selected for our perfect date:\n\n\uD83D\uDCC5 Date: ${dateStringFormatted}\n\uD83D\uDCCD Location: ${locationString}\n\uD83C\uDF54 Food Chosen: ${foodString}`;
+        let messageText = `Hey! \uD83D\uDC96\n\nI've accepted your date invitation! Here is what I selected for our perfect date:\n\n\uD83D\uDCC5 Date: ${dateStringFormatted}\n\uD83D\uDCCD Location: ${locationString}\n\uD83C\uDF54 Food Chosen: ${foodString}`;
         
         if (selections.note) {
             messageText += `\n\n\uD83D\uDC8C Message for you:\n"${selections.note}"`;
